@@ -1,12 +1,12 @@
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { Module } from '@nestjs/common';
-import { UniqueConstraint } from './decorators/unique.email.decorator.validate';
+import { UniqueEmailConstraint } from './decorators/unique.email.decorator.validate';
 
 @Module({
   imports: [],
   controllers: [UserController],
-  providers: [UserService, UniqueConstraint],
+  providers: [UserService, UniqueEmailConstraint],
   exports: [UserService],
 })
 export class UserModule {}

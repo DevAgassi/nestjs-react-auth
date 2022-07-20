@@ -15,14 +15,14 @@ export function UniqueEmail(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: UniqueConstraint,
+      validator: UniqueEmailConstraint,
     });
   };
 }
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class UniqueConstraint implements ValidatorConstraintInterface {
+export class UniqueEmailConstraint implements ValidatorConstraintInterface {
   constructor(private readonly usersService: UserService) {}
 
   async validate(value: any) {
