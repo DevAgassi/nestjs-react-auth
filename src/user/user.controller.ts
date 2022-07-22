@@ -25,16 +25,15 @@ export class UserController {
 
   @Get(':uuid')
   findOne(@Param('uuid') uuid: string): Promise<PublicUser> {
-    return this.userService.findByUUID(uuid);
+    return this.userService.findByUUIDPublic(uuid);
   }
 
   @Get('email/:email')
   async findByEmail(@Param('email') email: string): Promise<PublicUser> {
-    const user = await this.userService.findByEmailOrTrow(email);
-    return this.userService.serialize(user);
+    return await this.userService.findByEmailOrTrowPublic(email);
   }
 
-  @Auth(Role.ADMIN)
+  //@Auth(Role.ADMIN)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<PublicUser> {
     return await this.userService.create(createUserDto);

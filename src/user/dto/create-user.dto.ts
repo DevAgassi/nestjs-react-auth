@@ -1,4 +1,10 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../types/role.enum';
 import { Match } from 'src/decorators/match.decorator.validate';
@@ -36,4 +42,16 @@ export class CreateUserDto {
     isArray: true,
   })
   roles: Role;
+  /*
+  @Exclude()
+  @IsString()
+  refreshToken?: string;
+
+  @Exclude()
+  @IsBoolean()
+  isRegisteredWithGoogle?: boolean;
+
+  @IsBoolean()
+  @Exclude()
+  isEmailConfirmed: boolean;*/
 }

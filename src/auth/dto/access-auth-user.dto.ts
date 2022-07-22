@@ -9,5 +9,10 @@ export class AccessAuthUserDto {
 
   @IsNotEmpty()
   @IsString()
+  @ApiProperty()
+  refresh_token: string;
+
+  @IsNotEmpty()
+  @IsString()
   expiresIn: string;
 }

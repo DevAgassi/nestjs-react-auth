@@ -1,12 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaClientValidationError } from '@prisma/client/runtime';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { PublicUser } from './models/public.user';
+import { PublicUser } from 'src/user/models/public.user';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
+
+  async removeRefreshToken(user: User) {
+    return await this.prisma.user.update({
+      where: {
+        uuid: user.uuid,
+      },
+      data: {
+        refreshToken: null,
+      },
+    });
+  }
 
   async create(data: Prisma.UserCreateInput): Promise<PublicUser> {
     const { name, email, password, roles } = data;
@@ -31,28 +42,36 @@ export class UserService {
     });
   }
 
-  async findByUUID(uuid: string): Promise<PublicUser> {
+  async findByUUID(uuid: string): Promise<User> {
     try {
-      const user = await this.prisma.user.findUniqueOrThrow({
+      return await this.prisma.user.findUniqueOrThrow({
         where: { uuid },
       });
-
-      return this.serialize(user);
     } catch (e) {
       throw new NotFoundException(`Can\`t find user by uuid:${uuid}`);
     }
   }
 
+  async findByUUIDPublic(uuid: string): Promise<PublicUser> {
+    const user = await this.findByUUID(uuid);
+
+    return this.serialize(user);
+  }
+
   async findByEmailOrTrow(email: string): Promise<User> {
     try {
-      const user = await this.prisma.user.findFirstOrThrow({
+      return await this.prisma.user.findFirstOrThrow({
         where: { email },
       });
-
-      return user;
     } catch (e) {
       throw new NotFoundException();
     }
+  }
+
+  async findByEmailOrTrowPublic(email: string): Promise<PublicUser> {
+    const user = await this.findByEmailOrTrow(email);
+
+    return this.serialize(user);
   }
 
   async findByEmail(email: string): Promise<User> {
@@ -65,6 +84,12 @@ export class UserService {
         throw new NotFoundException(`Can\`t find user by email:${email}`);
       }
     }
+  }
+
+  async findByEmailPublic(email: string): Promise<PublicUser> {
+    const user = await this.findByEmail(email);
+
+    return this.serialize(user);
   }
 
   async update(
@@ -94,6 +119,31 @@ export class UserService {
     });
 
     return this.serialize(user);
+  }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, uuid: string) {
+    const user = await this.findByUUID(uuid);
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async setCurrentRefreshToken(refreshToken: string, uuid: string) {
+    const currentRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.prisma.user.update({
+      where: {
+        uuid,
+      },
+      data: {
+        refreshToken: currentRefreshToken,
+      },
+    });
   }
 
   serialize(user: User): PublicUser {

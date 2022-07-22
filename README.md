@@ -61,5 +61,6 @@ $ npm run test:cov
 ## Points
 1. Install Prisma and setup DB,Seed,Migrations
 2. Add Module User and Authentication
-3. Install Passport.
+3. Integrate Passport/Nestjs/passport
+4. Integrate Nodemailer/send email
 
