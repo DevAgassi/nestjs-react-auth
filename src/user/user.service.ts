@@ -8,6 +8,17 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  markEmailAsConfirmed(email: string) {
+    return this.prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        isEmailConfirmed: true,
+      },
+    });
+  }
+
   async removeRefreshToken(user: User) {
     return await this.prisma.user.update({
       where: {

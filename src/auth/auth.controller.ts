@@ -18,7 +18,7 @@ import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-
+import { VerifyEmailGuard } from 'src/verifyEmail/guards/verifyEmail.guard';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -27,7 +27,7 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard, VerifyEmailGuard)
   @Post('signin')
   @ApiBody({ type: CreadAuthUserDto })
   async signin(

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Auth } from 'src/decorators/auth.decorator';
 import { Role } from 'src/types/role.enum';
+import { VerifyEmailService } from 'src/verifyEmail/verifyEmailService';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PublicUser } from './models/public.user';
@@ -16,7 +17,10 @@ import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly verifyEmailService: VerifyEmailService,
+    private readonly userService: UserService,
+  ) {}
 
   @Get()
   findAll(): Promise<PublicUser[]> {
@@ -36,7 +40,10 @@ export class UserController {
   //@Auth(Role.ADMIN)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<PublicUser> {
-    return await this.userService.create(createUserDto);
+    const user = await this.userService.create(createUserDto);
+    await this.verifyEmailService.sendVerificationLink(user.email);
+
+    return user;
   }
 
   @Auth(Role.ADMIN)
